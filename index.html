@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="description" content="KingPin - A Drug Wars game for the web. Buy low, sell high, avoid the cops.">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>KingPin</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ══════ SPLASH SCREEN ══════ -->
+  <div id="splash-screen">
+    <div class="splash-title">KINGPIN</div>
+    <div class="splash-subtitle">Drug Wars</div>
+    <div class="splash-tagline">
+      Buy low. Sell high. Avoid the cops.<br>
+      You have 30 days to pay off your debt and make a fortune on the streets of New York.
+    </div>
+    <div class="splash-buttons">
+      <button class="btn btn-action" id="btn-new-game">New Game</button>
+      <button class="btn" id="btn-load-game">Continue</button>
+    </div>
+  </div>
+
+  <!-- ══════ GAME SCREEN ══════ -->
+  <div id="game-screen" class="hidden">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="game-title">KINGPIN</div>
+      <div class="menu-buttons">
+        <button class="btn" id="btn-menu-new">New</button>
+        <button class="btn" id="btn-menu-save">Save</button>
+        <button class="btn" id="btn-menu-scores">Scores</button>
+        <button class="btn" id="btn-menu-about">?</button>
+      </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="stats-panel">
+      <div class="stat-item">
+        <span class="stat-label">Day</span>
+        <span class="stat-value" id="stat-day">1/30</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">District</span>
+        <span class="stat-value" id="stat-district">Bronx</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Cash</span>
+        <span class="stat-value cash" id="stat-cash">$2,000</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Bank</span>
+        <span class="stat-value" id="stat-bank">$0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Debt</span>
+        <span class="stat-value debt" id="stat-debt">$5,500</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Net Worth</span>
+        <span class="stat-value total" id="stat-total">-$3,500</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Health</span>
+        <div class="health-stat">
+          <div class="health-bar-container">
+            <div class="health-fill" id="health-bar" style="width:100%"></div>
+          </div>
+          <span class="health-num" id="health-text">100</span>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div style="display:flex;gap:16px;">
+          <div style="text-align:center">
+            <span class="stat-label">Guns</span>
+            <span class="stat-value" id="stat-guns">0</span>
+          </div>
+          <div style="text-align:center">
+            <span class="stat-label">Coat</span>
+            <span class="stat-value" id="stat-coat">0/100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output Area -->
+    <div class="output-area" id="output"></div>
+
+    <!-- Action Buttons -->
+    <div class="action-bar">
+      <button class="btn btn-action" id="btn-jet">Jet</button>
+      <button class="btn" id="btn-buysell">Buy / Sell</button>
+      <button class="btn" id="btn-finance" disabled>Finance</button>
+      <button class="btn" id="btn-guns" disabled>Guns</button>
+      <button class="btn" id="btn-hospital" disabled>Hospital</button>
+      <button class="btn btn-danger hidden" id="btn-end">End Game</button>
+    </div>
+  </div>
+
+  <!-- ══════ MODAL OVERLAY ══════ -->
+  <div id="modal-overlay" class="hidden">
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>

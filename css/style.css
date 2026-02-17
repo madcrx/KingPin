@@ -1,0 +1,842 @@
+/* KingPin - Dark Retro-Modern Theme */
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a2e;
+  --bg-modal: #16162a;
+  --bg-input: #0d0d1a;
+  --border: #2a2a4a;
+  --border-bright: #3a3a6a;
+  --text-primary: #e0e0ff;
+  --text-secondary: #8888aa;
+  --text-dim: #555577;
+  --accent: #00ff88;
+  --accent-dim: #00cc66;
+  --accent-glow: rgba(0, 255, 136, 0.15);
+  --danger: #ff4444;
+  --danger-dim: #cc2222;
+  --warning: #ffaa00;
+  --cheap: #ff4444;
+  --expensive: #4488ff;
+  --profit: #00ff88;
+  --loss: #ff4444;
+  --gold: #ffd700;
+  --font-mono: 'Courier New', 'Consolas', monospace;
+  --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-main);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SPLASH SCREEN ── */
+
+#splash-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: radial-gradient(ellipse at center, #1a1a3e 0%, #0a0a0f 70%);
+  text-align: center;
+  padding: 20px;
+}
+
+.splash-title {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: 0 0 30px rgba(0, 255, 136, 0.4), 0 0 60px rgba(0, 255, 136, 0.2);
+  letter-spacing: 0.15em;
+  margin-bottom: 0.2em;
+  font-family: var(--font-mono);
+}
+
+.splash-subtitle {
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  color: var(--text-secondary);
+  margin-bottom: 2em;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.splash-tagline {
+  font-size: clamp(0.75rem, 2vw, 0.9rem);
+  color: var(--text-dim);
+  margin-bottom: 3em;
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.splash-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.splash-buttons .btn {
+  font-size: 1.1rem;
+  padding: 14px 32px;
+  letter-spacing: 0.1em;
+}
+
+/* ── GAME SCREEN ── */
+
+#game-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+/* ── TOP BAR / MENU ── */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.game-title {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.menu-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.menu-buttons .btn {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.menu-buttons .btn:hover {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
+/* ── STATS PANEL ── */
+
+.stats-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 2px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 6px;
+  background: var(--bg-card);
+  border-radius: 4px;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 1px;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-value.cash { color: var(--accent); }
+.stat-value.debt { color: var(--danger); }
+.stat-value.total { color: var(--gold); }
+
+/* ── HEALTH BAR ── */
+
+.health-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.health-bar-container {
+  flex: 1;
+  height: 14px;
+  background: var(--bg-input);
+  border-radius: 7px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.health-bar-container.small {
+  height: 10px;
+  border-radius: 5px;
+}
+
+.health-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  border-radius: 7px;
+  transition: width 0.3s ease;
+}
+
+.health-fill.warning {
+  background: linear-gradient(90deg, #cc6600, var(--warning));
+}
+
+.health-fill.critical {
+  background: linear-gradient(90deg, var(--danger-dim), var(--danger));
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.health-num {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── OUTPUT AREA ── */
+
+.output-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  min-height: 0;
+}
+
+.output-line {
+  padding: 2px 0;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(42, 42, 74, 0.3);
+}
+
+.output-line:last-child {
+  color: var(--accent);
+}
+
+/* ── ACTION BUTTONS ── */
+
+.action-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.action-bar .btn {
+  font-size: 0.85rem;
+  padding: 12px 8px;
+  font-weight: 600;
+}
+
+/* ── BUTTONS ── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: 1px solid var(--border-bright);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--bg-modal);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-action {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.btn-action:hover:not(:disabled) {
+  background: rgba(0, 255, 136, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+}
+
+.btn-danger {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: var(--danger-dim);
+  color: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(255, 68, 68, 0.2);
+}
+
+.btn-cancel {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+.btn-close {
+  background: var(--bg-card);
+  border-color: var(--border-bright);
+}
+
+.btn-sm {
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  letter-spacing: 0;
+}
+
+.btn-buy { color: var(--accent); border-color: var(--accent-dim); }
+.btn-sell { color: var(--gold); border-color: #aa9900; }
+.btn-dump { color: var(--text-secondary); }
+
+.btn-fight { background: rgba(255, 68, 68, 0.15); border-color: var(--danger-dim); color: var(--danger); }
+.btn-run { background: rgba(255, 170, 0, 0.1); border-color: #aa7700; color: var(--warning); }
+.btn-surrender { background: transparent; border-color: var(--border); color: var(--text-secondary); }
+
+/* ── MODAL ── */
+
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--bg-modal);
+  border: 1px solid var(--border-bright);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 255, 136, 0.05);
+}
+
+.modal-header {
+  padding: 14px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.fight-header {
+  color: var(--danger);
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.modal-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.modal-info {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+/* ── LOCATION LIST ── */
+
+.location-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.location-btn {
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.location-btn:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.location-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── MARKET / TABLES ── */
+
+.market-stats {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.market-stats strong {
+  color: var(--accent);
+}
+
+.market-section {
+  margin-bottom: 16px;
+}
+
+.market-section h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.drug-table {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.table-row {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(42, 42, 74, 0.5);
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-header {
+  background: rgba(42, 42, 74, 0.5);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.table-row.expensive-deal .col-name,
+.table-row.expensive-deal .col-price {
+  color: var(--expensive);
+}
+
+.table-row.cheap-deal .col-name,
+.table-row.cheap-deal .col-price {
+  color: var(--cheap);
+}
+
+.empty-row {
+  color: var(--text-dim);
+  font-style: italic;
+  justify-content: center;
+  padding: 12px;
+}
+
+.col-rank { width: 24px; text-align: center; color: var(--text-dim); }
+.col-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.col-price { width: 70px; text-align: right; font-family: var(--font-mono); font-size: 0.78rem; }
+.col-qty { width: 32px; text-align: center; font-family: var(--font-mono); }
+.col-stat { width: 32px; text-align: center; font-size: 0.75rem; color: var(--text-dim); }
+.col-action { width: 50px; text-align: center; }
+.col-action2 { width: 90px; text-align: center; display: flex; gap: 4px; justify-content: flex-end; }
+
+/* ── FINANCE ── */
+
+.finance-stats {
+  margin-bottom: 16px;
+}
+
+.finance-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42, 42, 74, 0.3);
+  font-size: 0.9rem;
+}
+
+.finance-row span {
+  color: var(--text-secondary);
+}
+
+.finance-row strong {
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.finance-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ── FIGHT ── */
+
+.fight-body {
+  padding: 12px;
+}
+
+.fight-text {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--warning);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.fight-stats {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+
+.fight-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.fight-stat label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.fight-stat span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.fight-stat .health-bar-container {
+  width: 80px;
+}
+
+.fight-log {
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 8px;
+  background: var(--bg-input);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.fight-log-line {
+  padding: 2px 0;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(42, 42, 74, 0.3);
+  white-space: pre-line;
+}
+
+.fight-log-line:last-child {
+  color: var(--warning);
+}
+
+.fight-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.fight-actions .btn {
+  flex: 1;
+  padding: 12px;
+}
+
+/* ── QUANTITY PICKER ── */
+
+.qty-info {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  white-space: pre-line;
+}
+
+.qty-question {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.qty-controls {
+  margin-bottom: 12px;
+}
+
+.qty-slider {
+  width: 100%;
+  margin-bottom: 8px;
+  accent-color: var(--accent);
+  height: 6px;
+}
+
+.qty-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.qty-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-bright);
+  border-radius: 6px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  text-align: center;
+  outline: none;
+}
+
+.qty-input:focus {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+}
+
+/* ── SELL PICKER ── */
+
+.sell-info, .sell-totals {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(42, 42, 74, 0.3);
+}
+
+.sell-totals {
+  border-bottom: none;
+  margin-top: 8px;
+}
+
+.profit { color: var(--profit) !important; }
+.loss { color: var(--loss) !important; }
+
+/* ── NAME INPUT ── */
+
+.name-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  text-align: center;
+  margin-bottom: 8px;
+  outline: none;
+  font-family: var(--font-main);
+}
+
+.name-input:focus {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+}
+
+/* ── ALERT ── */
+
+.alert-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+  padding: 8px 0;
+  color: var(--text-primary);
+  white-space: pre-line;
+}
+
+/* ── ABOUT ── */
+
+.about-text {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.about-text p {
+  margin-bottom: 10px;
+}
+
+.about-text strong {
+  color: var(--accent);
+}
+
+/* ── UTILITY ── */
+
+.hidden {
+  display: none !important;
+}
+
+/* ── SCROLLBAR ── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-dim);
+}
+
+/* ── RESPONSIVE ── */
+
+@media (max-width: 360px) {
+  .stats-panel {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .action-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .location-list {
+    grid-template-columns: 1fr;
+  }
+
+  .fight-actions {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 600px) {
+  .stats-panel {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .modal-content {
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 900px) {
+  #game-screen {
+    max-width: 700px;
+    margin: 0 auto;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+}
+
+/* Remove number input spinners */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
