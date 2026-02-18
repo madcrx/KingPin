@@ -1,5 +1,5 @@
 // KingPin - Core Game Engine
-// Faithful port of DWarsDoc.cpp game logic
+// Global drug trade, 365-day gameplay, heat level system
 
 class GameEngine {
   constructor() {
@@ -14,7 +14,6 @@ class GameEngine {
   }
 
   reset() {
-    // Player stats
     this.playerName = "";
     this.drugs = new Array(CONFIG.NUM_DRUGS).fill(null).map(() => ({ number: 0, price: 0 }));
     this.guns = new Array(CONFIG.NUM_GUNS).fill(null).map(() => ({ number: 0, price: 0 }));
@@ -27,17 +26,14 @@ class GameEngine {
     this.coatUsed = 0;
     this.health = 100;
 
-    // Game stats
     this.currentDay = 1;
     this.totalDays = CONFIG.TOTAL_DAYS;
     this.location = 0;
     this.copCount = 3;
 
-    // Market prices for current location
     this.drugPrices = new Array(CONFIG.NUM_DRUGS).fill(0);
     this.drugSpecials = new Array(CONFIG.NUM_DRUGS).fill(0);
 
-    // Flags
     this.makeLoan = true;
     this.sellGun = true;
     this.gameOver = false;
@@ -52,7 +48,7 @@ class GameEngine {
     this.cash = CONFIG.STARTING_CASH;
     this.debt = CONFIG.STARTING_DEBT;
     this.bank = 0;
-    this.total = -3500;
+    this.total = this.cash + this.bank - this.debt;
     this.coatSize = CONFIG.COAT_SIZE;
     this.coatUsed = 0;
     this.health = 100;
@@ -88,14 +84,27 @@ class GameEngine {
     this.generateDrugs();
   }
 
-  events() {
-    let i = 0;
-    if (this.total > 3000000) { i = 130; }
-    else if (this.total > 1000000) { i = 115; }
-    else { i = 100; }
+  // Get current heat level based on net worth
+  getHeatLevel() {
+    for (const t of CONFIG.HEAT_THRESHOLDS) {
+      if (this.total > t.min) {
+        return t;
+      }
+    }
+    return CONFIG.HEAT_THRESHOLDS[CONFIG.HEAT_THRESHOLDS.length - 1];
+  }
 
-    if (brandom(0, i) > 75) {
-      i = brandom(0, 100);
+  events() {
+    let eventRange = 100;
+    for (const t of CONFIG.EVENT_THRESHOLDS) {
+      if (this.total > t.min) {
+        eventRange = t.eventRange;
+        break;
+      }
+    }
+
+    if (brandom(0, eventRange) > 75) {
+      const i = brandom(0, 100);
       if (i < 33) {
         this.offerObject(false);
       } else if (i < 50) {
@@ -108,28 +117,26 @@ class GameEngine {
 
   offerObject(forceContainer) {
     if (brandom(0, 100) < 50 || forceContainer) {
-      // Offer trenchcoat
       const price = brandom(CONFIG.MIN_TRENCHCOAT_PRICE, CONFIG.MAX_TRENCHCOAT_PRICE);
       if (price <= this.cash) {
         this.pendingEvents.push({
           type: 'trenchcoat_offer',
           price: price,
-          message: `Would you like to buy a bigger trenchcoat for $${price}?`
+          message: `Would you like to buy a bigger trenchcoat for ${formatMoney(price)}?`
         });
       }
     } else {
-      // Offer gun at discount
       const gunIndex = brandom(0, CONFIG.NUM_GUNS);
       const price = Math.floor(CONFIG.GUNS[gunIndex].price / 10);
       if (price <= this.cash) {
         if (CONFIG.GUNS[gunIndex].space > (this.coatSize - this.coatUsed)) {
-          // Not enough room, silently skip
+          // Not enough room
         } else {
           this.pendingEvents.push({
             type: 'gun_offer',
             gunIndex: gunIndex,
             price: price,
-            message: `Would you like to buy a ${CONFIG.GUNS[gunIndex].name} for $${price}?`
+            message: `Would you like to buy a ${CONFIG.GUNS[gunIndex].name} for ${formatMoney(price)}?`
           });
         }
       }
@@ -199,20 +206,39 @@ class GameEngine {
           this.coatUsed += findAmount;
         }
       }
-    } else if (r < 60 && (this.drugs[11].number + this.drugs[2].number) > 0) {
-      // Mama's brownies (Pot=11, Hashish=2)
-      const ind = (this.drugs[11].number > this.drugs[2].number) ? 11 : 2;
-      let amount = brandom(2, 6);
-      if (amount > this.drugs[ind].number) {
-        amount = this.drugs[ind].number;
+    } else if (r < 60) {
+      // Police Raid - replaces mama's brownies
+      let hasDrugs = false;
+      for (let i = 0; i < CONFIG.NUM_DRUGS; i++) {
+        if (this.drugs[i].number > 0) { hasDrugs = true; break; }
       }
-      text = `Your mama made brownies with some of your ${CONFIG.DRUGS[ind].name}! They were great!`;
-      this.drugs[ind].number -= amount;
-      this.coatUsed -= amount;
+      if (hasDrugs) {
+        // Find a random drug being carried
+        let ind = -1;
+        for (let attempt = 0; attempt < 10; attempt++) {
+          const tryInd = brandom(0, CONFIG.NUM_DRUGS);
+          if (this.drugs[tryInd].number > 0) { ind = tryInd; break; }
+        }
+        if (ind !== -1) {
+          let amount = brandom(2, 8);
+          if (amount > this.drugs[ind].number) {
+            amount = this.drugs[ind].number;
+          }
+          text = `Police raid! Officers sweep through the area and you had to ditch ${amount} ${CONFIG.DRUGS[ind].name}!`;
+          this.drugs[ind].number -= amount;
+          this.coatUsed -= amount;
+          if (this.drugs[ind].number <= 0) {
+            this.drugs[ind].number = 0;
+            this.drugs[ind].price = 0;
+          }
+        }
+      } else {
+        text = "Police raid! Officers sweep through the area, but you're clean.";
+      }
     } else if (r < 65) {
-      // Paraquat weed - not implemented in original either
+      // Empty slot (paraquat - never implemented)
     } else {
-      const amount = brandom(1, 10);
+      const amount = brandom(10, 100);
       const activity = CONFIG.STOPPED_TO[brandom(0, CONFIG.NUM_STOPPED_TO)];
       if (this.cash >= amount) {
         text = `You stopped to ${activity}`;
@@ -243,12 +269,10 @@ class GameEngine {
     this.drugPrices = new Array(CONFIG.NUM_DRUGS).fill(0);
     this.drugSpecials = new Array(CONFIG.NUM_DRUGS).fill(0);
 
-    // Determine number of events
     if (brandom(0, 100) < 70) numEvents = 1;
     if (brandom(0, 100) < 40 && numEvents === 1) numEvents = 2;
     if (brandom(0, 100) < 5 && numEvents === 2) numEvents = 3;
 
-    // Determine prices for each event
     let attempts = 0;
     while (numEvents > 0 && attempts < 100) {
       attempts++;
@@ -269,12 +293,10 @@ class GameEngine {
       }
     }
 
-    // Figure out how many drugs to have
     const loc = CONFIG.LOCATIONS[this.location];
     numDrugs = brandom(loc.minDrug, loc.maxDrug) - numDrugs;
     if (numDrugs >= CONFIG.NUM_DRUGS) numDrugs = CONFIG.NUM_DRUGS;
 
-    // Determine prices for remaining drugs
     attempts = 0;
     while (numDrugs > 0 && attempts < 200) {
       attempts++;
@@ -285,7 +307,6 @@ class GameEngine {
       }
     }
 
-    // Generate messages for special deals
     for (let i = 0; i < CONFIG.NUM_DRUGS; i++) {
       if (deal[i]) {
         const drug = CONFIG.DRUGS[i];
@@ -305,14 +326,8 @@ class GameEngine {
   }
 
   startOfficerHardAss() {
-    const money = this.cash + this.bank - this.debt;
-    let cops;
-
-    if (money > 3000000) { cops = brandom(11, 27); }
-    else if (money > 1000000) { cops = brandom(7, 14); }
-    else if (money > 500000) { cops = brandom(6, 12); }
-    else if (money > 100000) { cops = brandom(2, 8); }
-    else { cops = brandom(1, 5); }
+    const heat = this.getHeatLevel();
+    const cops = brandom(heat.copMin, heat.copMax);
 
     this.pendingEvents.push({
       type: 'cop_encounter',
@@ -320,7 +335,7 @@ class GameEngine {
     });
   }
 
-  // Combat methods
+  // Combat
   fightCop(cops) {
     let damage = 100 - (brandom(0, cops) * this.copInfo.toughness);
 
@@ -334,15 +349,14 @@ class GameEngine {
 
     if (damage >= 100) {
       if (cops === 1) {
-        const money = brandom(1500, 3000);
-        result.playerText = `You killed Officer HardAss!\n\nYou find $${money} on his corpse!`;
+        const money = brandom(15000, 30000);
+        result.playerText = `You killed Officer HardAss!\n\nYou find ${formatMoney(money)} on his corpse!`;
         this.cash += money;
         result.killed = true;
         result.reward = money;
         result.copsRemaining = 0;
 
-        // Doctor offer
-        const docFee = brandom(1000, Math.max(1001, 2000 - (5 * this.health)));
+        const docFee = brandom(10000, Math.max(10001, 20000 - (50 * this.health)));
         if (brandom(0, 100) < 75 && this.cash >= docFee && this.health < 100) {
           result.doctorOffer = docFee;
         }
@@ -355,7 +369,6 @@ class GameEngine {
       result.playerText = "You missed!";
     }
 
-    // Police attack
     const policeResult = this.policeAttack(result.copsRemaining);
     result.policeText = policeResult.text;
 
@@ -368,13 +381,12 @@ class GameEngine {
 
     if (brandom(0, 100) < escapeProb) {
       result.escaped = true;
-      result.text = "You lose him in the alleys.";
+      result.text = "You lose them in the alleys.";
       return result;
     }
 
     result.text = cops <= 1 ? "You can't lose him!" : "You can't lose them!";
 
-    // Police attack
     const policeResult = this.policeAttack(cops);
     result.policeText = policeResult.text;
 
@@ -396,24 +408,23 @@ class GameEngine {
 
     const getAway = brandom(0, 100);
     let cost = brandom(Math.floor(this.total / 8), Math.floor(this.total / 4));
-    if (cost <= 0) cost = 5000;
+    if (cost <= 0) cost = 50000;
 
     let text;
     let jailDays = 0;
 
     if (getAway < this.jailCardProb) {
-      text = `The police confiscate all your drugs, but your lawyer gets the criminal charges dropped on a technicality! Court fees are $${cost}.`;
+      text = `The police confiscate all your drugs, but your lawyer gets the criminal charges dropped on a technicality! Court fees are ${formatMoney(cost)}.`;
     } else {
       jailDays = brandom(1, 4);
       if (jailDays === 1) {
-        text = `The police confiscate all your drugs and you spend ${jailDays} day in jail. You are charged $${cost} in fines`;
+        text = `The police confiscate all your drugs and you spend ${jailDays} day in jail. You are charged ${formatMoney(cost)} in fines`;
       } else {
-        text = `The police confiscate all your drugs and you spend ${jailDays} days in jail. You are charged $${cost} in fines`;
+        text = `The police confiscate all your drugs and you spend ${jailDays} days in jail. You are charged ${formatMoney(cost)} in fines`;
       }
       this.currentDay += jailDays;
     }
 
-    // Take cost
     this.cash -= cost;
     if (this.cash < 0) {
       this.bank += this.cash;
@@ -425,7 +436,6 @@ class GameEngine {
     }
     this.total = this.cash + this.bank - this.debt;
 
-    // Confiscate all drugs
     for (let i = 0; i < CONFIG.NUM_DRUGS; i++) {
       this.coatUsed -= this.drugs[i].number;
       this.drugs[i].number = 0;
@@ -510,7 +520,6 @@ class GameEngine {
       this.drugs[drugIndex].price = 0;
     }
 
-    // Check if cops spot the drop
     if (brandom(0, 100) < this.copInfo.dropProb) {
       return { spotted: true, drugName: CONFIG.DRUGS[drugIndex].name };
     }
@@ -561,7 +570,7 @@ class GameEngine {
     }
   }
 
-  // Finance
+  // Finance (available everywhere now)
   deposit(amount) {
     this.cash -= amount;
     this.bank += amount;
@@ -585,9 +594,9 @@ class GameEngine {
     this.total = this.cash + this.bank - this.debt;
   }
 
-  // Hospital
+  // Hospital (available everywhere now)
   getHospitalFee() {
-    return brandom(1000, Math.max(1001, 2000 - (5 * this.health)));
+    return brandom(10000, Math.max(10001, 20000 - (50 * this.health)));
   }
 
   heal(fee) {
@@ -596,10 +605,9 @@ class GameEngine {
     this.total = this.cash + this.bank - this.debt;
   }
 
-  // Max borrow amount
   maxBorrow() {
     let max = this.cash * 30;
-    if (max < 5500) max = 5500;
+    if (max < 55000) max = 55000;
     return max;
   }
 
@@ -656,7 +664,6 @@ class GameEngine {
     this.saveHighScores();
   }
 
-  // Save/Load game
   saveGame() {
     const state = {
       playerName: this.playerName,

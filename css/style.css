@@ -42,6 +42,14 @@ html, body {
   font-size: 14px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
+  /* iOS safe areas */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Prevent iOS rubber-banding */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ── SPLASH SCREEN ── */
@@ -184,6 +192,13 @@ html, body {
 .stat-value.cash { color: var(--accent); }
 .stat-value.debt { color: var(--danger); }
 .stat-value.total { color: var(--gold); }
+
+/* Heat level colors */
+.heat-low { color: var(--accent); }
+.heat-warm { color: var(--warning); }
+.heat-medium { color: #ff8800; }
+.heat-high { color: var(--danger); }
+.heat-extreme { color: #ff0066; animation: pulse 0.8s ease-in-out infinite; }
 
 /* ── HEALTH BAR ── */
 
@@ -428,8 +443,10 @@ html, body {
 
 .location-list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 6px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 .location-btn {
@@ -529,7 +546,7 @@ html, body {
 
 .col-rank { width: 24px; text-align: center; color: var(--text-dim); }
 .col-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col-price { width: 70px; text-align: right; font-family: var(--font-mono); font-size: 0.78rem; }
+.col-price { width: 90px; text-align: right; font-family: var(--font-mono); font-size: 0.78rem; }
 .col-qty { width: 32px; text-align: center; font-family: var(--font-mono); }
 .col-stat { width: 32px; text-align: center; font-size: 0.75rem; color: var(--text-dim); }
 .col-action { width: 50px; text-align: center; }
@@ -803,7 +820,7 @@ html, body {
   }
 
   .location-list {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .fight-actions {

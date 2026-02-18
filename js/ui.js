@@ -78,7 +78,7 @@ class GameUI {
   showNewGame() {
     let html = `<div class="modal-header">New Game</div>
       <div class="modal-body">
-        <label class="modal-label">Choose your starting district:</label>
+        <label class="modal-label">Choose your starting city:</label>
         <div class="location-list">`;
 
     CONFIG.LOCATIONS.forEach((loc, i) => {
@@ -141,10 +141,10 @@ class GameUI {
     const e = this.engine;
     this.dayEl.textContent = `${e.currentDay}/${e.totalDays}`;
     this.districtEl.textContent = CONFIG.LOCATIONS[e.location].name;
-    this.cashEl.textContent = `$${e.cash.toLocaleString()}`;
-    this.bankEl.textContent = `$${e.bank.toLocaleString()}`;
-    this.debtEl.textContent = `$${e.debt.toLocaleString()}`;
-    this.totalEl.textContent = `$${e.total.toLocaleString()}`;
+    this.cashEl.textContent = formatMoney(e.cash);
+    this.bankEl.textContent = formatMoney(e.bank);
+    this.debtEl.textContent = formatMoney(e.debt);
+    this.totalEl.textContent = formatMoney(e.total);
 
     this.healthBar.style.width = `${Math.max(0, e.health)}%`;
     this.healthBar.className = 'health-fill' +
@@ -154,10 +154,18 @@ class GameUI {
     this.gunsEl.textContent = e.numGuns;
     this.coatEl.textContent = `${e.coatUsed}/${e.coatSize}`;
 
-    // Enable/disable location-specific buttons
-    this.btnFinance.disabled = e.location !== CONFIG.FINANCE_LOCATION;
-    this.btnGuns.disabled = e.location !== CONFIG.GUN_SHOP_LOCATION;
-    this.btnHospital.disabled = e.location !== CONFIG.HOSPITAL_LOCATION;
+    // All facilities available everywhere
+    this.btnFinance.disabled = false;
+    this.btnGuns.disabled = false;
+    this.btnHospital.disabled = false;
+
+    // Update heat level indicator
+    const heat = e.getHeatLevel();
+    const heatEl = document.getElementById('stat-heat');
+    if (heatEl) {
+      heatEl.textContent = heat.label;
+      heatEl.className = 'stat-value heat-' + heat.label.toLowerCase();
+    }
 
     // Show end button if last day
     if (e.currentDay >= e.totalDays) {
@@ -285,7 +293,7 @@ class GameUI {
     let html = `<div class="modal-header">Drug Market</div>
       <div class="modal-body">
         <div class="market-stats">
-          <span>Cash: <strong>$${e.cash.toLocaleString()}</strong></span>
+          <span>Cash: <strong>${formatMoney(e.cash)}</strong></span>
           <span>Coat: <strong>${e.coatUsed}/${e.coatSize}</strong></span>
         </div>
 
@@ -319,7 +327,7 @@ class GameUI {
     const statsEl = document.querySelector('.market-stats');
     if (statsEl) {
       statsEl.innerHTML = `
-        <span>Cash: <strong>$${e.cash.toLocaleString()}</strong></span>
+        <span>Cash: <strong>${formatMoney(e.cash)}</strong></span>
         <span>Coat: <strong>${e.coatUsed}/${e.coatSize}</strong></span>`;
     }
 
@@ -335,7 +343,7 @@ class GameUI {
         const specialClass = e.drugSpecials[i] === 1 ? ' expensive-deal' : e.drugSpecials[i] === 2 ? ' cheap-deal' : '';
         buyHtml += `<div class="table-row${specialClass}">
           <span class="col-name">${CONFIG.DRUGS[i].name}</span>
-          <span class="col-price">$${e.drugPrices[i].toLocaleString()}</span>
+          <span class="col-price">${formatMoney(e.drugPrices[i])}</span>
           <span class="col-action"><button class="btn btn-sm btn-buy" data-drug="${i}">Buy</button></span>
         </div>`;
       }
@@ -357,7 +365,7 @@ class GameUI {
         sellHtml += `<div class="table-row">
           <span class="col-name">${CONFIG.DRUGS[i].name}</span>
           <span class="col-qty">${e.drugs[i].number}</span>
-          <span class="col-price">$${e.drugs[i].price.toLocaleString()}</span>
+          <span class="col-price">${formatMoney(e.drugs[i].price)}</span>
           <span class="col-action2">
             <button class="btn btn-sm btn-sell" data-drug="${i}">Sell</button>
             <button class="btn btn-sm btn-dump" data-drug="${i}">Drop</button>
@@ -464,13 +472,8 @@ class GameUI {
         if (result.spotted) {
           this.closeModal();
           this.addOutput(`Cops spotted you dropping ${result.drugName}!`);
-          const money = e.cash + e.bank - e.debt;
-          let cops;
-          if (money > 3000000) cops = brandom(11, 27);
-          else if (money > 1000000) cops = brandom(7, 14);
-          else if (money > 500000) cops = brandom(6, 12);
-          else if (money > 100000) cops = brandom(2, 8);
-          else cops = brandom(1, 5);
+          const heat = e.getHeatLevel();
+          const cops = brandom(heat.copMin, heat.copMax);
 
           setTimeout(() => this.showFight(cops), 300);
         }
@@ -573,7 +576,7 @@ class GameUI {
       document.getElementById('btn-fight-done').addEventListener('click', () => {
         this.closeModal();
         if (result.doctorOffer) {
-          this.showConfirm(`Do you pay a doctor $${result.doctorOffer} to sew you up?`, () => {
+          this.showConfirm(`Do you pay a doctor ${formatMoney(result.doctorOffer)} to sew you up?`, () => {
             this.engine.acceptDoctor(result.doctorOffer);
             this.updateScreen();
           });
@@ -681,9 +684,9 @@ class GameUI {
       let html = `<div class="modal-header">Loan Shark & Bank</div>
         <div class="modal-body">
           <div class="finance-stats">
-            <div class="finance-row"><span>Cash:</span><strong id="fin-cash">$${tempCash.toLocaleString()}</strong></div>
-            <div class="finance-row"><span>Bank:</span><strong id="fin-bank">$${tempBank.toLocaleString()}</strong></div>
-            <div class="finance-row"><span>Debt:</span><strong id="fin-debt">$${tempDebt.toLocaleString()}</strong></div>
+            <div class="finance-row"><span>Cash:</span><strong id="fin-cash">${formatMoney(tempCash)}</strong></div>
+            <div class="finance-row"><span>Bank:</span><strong id="fin-bank">${formatMoney(tempBank)}</strong></div>
+            <div class="finance-row"><span>Debt:</span><strong id="fin-debt">${formatMoney(tempDebt)}</strong></div>
             <div class="finance-row"><span>Day:</span><strong>${e.currentDay}/${e.totalDays}</strong></div>
           </div>
           <div class="finance-actions">
@@ -700,7 +703,7 @@ class GameUI {
       this.showModal(html, 'finance-modal');
 
       document.getElementById('fin-deposit').addEventListener('click', () => {
-        this.showQuantityPicker("Deposit", `You have $${tempCash.toLocaleString()} in cash`, "How much to deposit?",
+        this.showQuantityPicker("Deposit", `You have ${formatMoney(tempCash)} in cash`, "How much to deposit?",
           1, tempCash, 1, (amt) => {
             tempCash -= amt; tempBank += amt;
             e.cash = tempCash; e.bank = tempBank;
@@ -711,7 +714,7 @@ class GameUI {
       });
 
       document.getElementById('fin-withdraw').addEventListener('click', () => {
-        this.showQuantityPicker("Withdraw", `You have $${tempBank.toLocaleString()} in the bank`, "How much to withdraw?",
+        this.showQuantityPicker("Withdraw", `You have ${formatMoney(tempBank)} in the bank`, "How much to withdraw?",
           1, tempBank, 1, (amt) => {
             tempCash += amt; tempBank -= amt;
             e.cash = tempCash; e.bank = tempBank;
@@ -723,7 +726,7 @@ class GameUI {
 
       document.getElementById('fin-borrow').addEventListener('click', () => {
         const maxBorrow = e.maxBorrow();
-        this.showQuantityPicker("Borrow", `Cash: $${tempCash.toLocaleString()}, Bank: $${tempBank.toLocaleString()}`,
+        this.showQuantityPicker("Borrow", `Cash: ${formatMoney(tempCash)}, Bank: ${formatMoney(tempBank)}`,
           "How much to borrow?", 1, maxBorrow, 1, (amt) => {
             tempCash += amt; tempDebt += amt;
             e.cash = tempCash; e.debt = tempDebt;
@@ -736,7 +739,7 @@ class GameUI {
 
       document.getElementById('fin-payback').addEventListener('click', () => {
         const maxPay = Math.min(tempCash, tempDebt);
-        this.showQuantityPicker("Pay Back", `Cash: $${tempCash.toLocaleString()}, Debt: $${tempDebt.toLocaleString()}`,
+        this.showQuantityPicker("Pay Back", `Cash: ${formatMoney(tempCash)}, Debt: ${formatMoney(tempDebt)}`,
           "How much to pay back?", 1, maxPay, 1, (amt) => {
             tempCash -= amt; tempDebt -= amt;
             e.cash = tempCash; e.debt = tempDebt;
@@ -764,7 +767,7 @@ class GameUI {
       for (let i = 0; i < CONFIG.NUM_GUNS; i++) {
         buyHtml += `<div class="table-row">
           <span class="col-name">${CONFIG.GUNS[i].name}</span>
-          <span class="col-price">$${CONFIG.GUNS[i].price.toLocaleString()}</span>
+          <span class="col-price">${formatMoney(CONFIG.GUNS[i].price)}</span>
           <span class="col-stat">S:${CONFIG.GUNS[i].space}</span>
           <span class="col-stat">D:${CONFIG.GUNS[i].damage}</span>
           <span class="col-action"><button class="btn btn-sm btn-buy gun-buy" data-gun="${i}" ${!e.sellGun ? 'disabled' : ''}>Buy</button></span>
@@ -778,7 +781,7 @@ class GameUI {
           hasGuns = true;
           sellHtml += `<div class="table-row">
             <span class="col-name">${CONFIG.GUNS[i].name}</span>
-            <span class="col-price">$${e.guns[i].price.toLocaleString()}</span>
+            <span class="col-price">${formatMoney(e.guns[i].price)}</span>
             <span class="col-qty">${e.guns[i].number}</span>
             <span class="col-action2">
               <button class="btn btn-sm btn-sell gun-sell" data-gun="${i}">Sell</button>
@@ -794,7 +797,7 @@ class GameUI {
       let html = `<div class="modal-header">Gun Shop</div>
         <div class="modal-body">
           <div class="market-stats">
-            <span>Cash: <strong>$${e.cash.toLocaleString()}</strong></span>
+            <span>Cash: <strong>${formatMoney(e.cash)}</strong></span>
             <span>Coat: <strong>${e.coatUsed}/${e.coatSize}</strong></span>
           </div>
           <div class="market-section">
@@ -896,7 +899,7 @@ class GameUI {
       return;
     }
 
-    this.showConfirm(`Do you pay a doctor $${fee} to sew you up?`, () => {
+    this.showConfirm(`Do you pay a doctor ${formatMoney(fee)} to sew you up?`, () => {
       e.heal(fee);
       this.updateScreen();
       this.addOutput("The doctor patched you up. Health restored to 100.");
@@ -914,7 +917,7 @@ class GameUI {
         rows += `<div class="table-row">
           <span class="col-rank">${i + 1}</span>
           <span class="col-name">${this.escapeHtml(s.name)}</span>
-          <span class="col-price">$${s.money.toLocaleString()}</span>
+          <span class="col-price">${formatMoney(s.money)}</span>
           <span class="col-stat">${s.alive}</span>
         </div>`;
       });
@@ -957,12 +960,12 @@ class GameUI {
     const html = `<div class="modal-header">About KingPin</div>
       <div class="modal-body">
         <div class="about-text">
-          <p><strong>KingPin</strong> - Drug Wars for the Web</p>
-          <p>A faithful port of the classic Pocket DopeWars / Drug Wars game.</p>
+          <p><strong>KingPin</strong> - Global Drug Wars</p>
+          <p>Trade across 15 world cities. Build your empire in 365 days.</p>
           <p>Original concept by John E. Dell (1984).<br>
           C++ WinCE version by AtomWare.<br>
-          Web port by Claude Code.</p>
-          <p>Buy low, sell high, avoid the cops, and try to pay off your debt in 30 days!</p>
+          Web port and global expansion by Claude Code.</p>
+          <p>Buy low, sell high, avoid the cops, and try to pay off your debt!</p>
         </div>
         <div class="modal-actions">
           <button class="btn btn-close" id="about-close">Close</button>
@@ -1083,8 +1086,8 @@ class GameUI {
       <div class="modal-body">
         <div class="qty-info">${this.escapeHtml(info)}</div>
         <div class="sell-info">
-          <div>Market Price: <strong>$${curPrice.toLocaleString()}</strong></div>
-          <div>Profit per unit: <strong class="${curPrice - boughtPrice >= 0 ? 'profit' : 'loss'}">$${(curPrice - boughtPrice).toLocaleString()}</strong></div>
+          <div>Market Price: <strong>${formatMoney(curPrice)}</strong></div>
+          <div>Profit per unit: <strong class="${curPrice - boughtPrice >= 0 ? 'profit' : 'loss'}">${formatMoney(curPrice - boughtPrice)}</strong></div>
         </div>
         <div class="qty-controls">
           <input type="range" id="qty-slider" min="${min}" max="${max}" value="${initial}" class="qty-slider">
@@ -1094,8 +1097,8 @@ class GameUI {
           </div>
         </div>
         <div class="sell-totals">
-          <div>Total Worth: <strong id="sell-worth">$${(initial * curPrice).toLocaleString()}</strong></div>
-          <div>Total Profit: <strong id="sell-profit" class="${(initial * curPrice) - (initial * boughtPrice) >= 0 ? 'profit' : 'loss'}">$${((initial * curPrice) - (initial * boughtPrice)).toLocaleString()}</strong></div>
+          <div>Total Worth: <strong id="sell-worth">${formatMoney(initial * curPrice)}</strong></div>
+          <div>Total Profit: <strong id="sell-profit" class="${(initial * curPrice) - (initial * boughtPrice) >= 0 ? 'profit' : 'loss'}">${formatMoney((initial * curPrice) - (initial * boughtPrice))}</strong></div>
         </div>
         <div class="modal-actions">
           <button class="btn btn-action" id="qty-ok">Sell</button>
@@ -1113,8 +1116,8 @@ class GameUI {
     const updateTotals = (qty) => {
       const worth = qty * curPrice;
       const profit = (qty * curPrice) - (qty * boughtPrice);
-      worthEl.textContent = `$${worth.toLocaleString()}`;
-      profitEl.textContent = `$${profit.toLocaleString()}`;
+      worthEl.textContent = formatMoney(worth);
+      profitEl.textContent = formatMoney(profit);
       profitEl.className = profit >= 0 ? 'profit' : 'loss';
     };
 
