@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="description" content="KingPin - Global Drug Wars. Trade across 15 world cities in 365 days.">
+  <meta name="description" content="KingPin - Drug Wars. Deal drugs across 8 NYC districts in 30 days.">
   <meta name="theme-color" content="#0a0a0f">
   <!-- iOS PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="KingPin">
-  <link rel="apple-touch-icon" href="icon-180.png">
-  <link rel="manifest" href="manifest.json">
   <title>KingPin</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -19,10 +17,10 @@
   <!-- SPLASH SCREEN -->
   <div id="splash-screen">
     <div class="splash-title">KINGPIN</div>
-    <div class="splash-subtitle">Global Drug Wars</div>
+    <div class="splash-subtitle">Drug Wars</div>
     <div class="splash-tagline">
       Buy low. Sell high. Avoid the cops.<br>
-      You have 365 days to pay off your debt and build a global empire.
+      You have 30 days to pay off your debt and make as much money as possible.
     </div>
     <div class="splash-buttons">
       <button class="btn btn-action" id="btn-new-game">New Game</button>
@@ -48,15 +46,15 @@
     <div class="stats-panel">
       <div class="stat-item">
         <span class="stat-label">Day</span>
-        <span class="stat-value" id="stat-day">1/365</span>
+        <span class="stat-value" id="stat-day">1/30</span>
       </div>
       <div class="stat-item">
-        <span class="stat-label">City</span>
-        <span class="stat-value" id="stat-district">Bogota</span>
+        <span class="stat-label">District</span>
+        <span class="stat-value" id="stat-district">Bronx</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">Cash</span>
-        <span class="stat-value cash" id="stat-cash">$20k</span>
+        <span class="stat-value cash" id="stat-cash">$2k</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">Bank</span>
@@ -64,11 +62,11 @@
       </div>
       <div class="stat-item">
         <span class="stat-label">Debt</span>
-        <span class="stat-value debt" id="stat-debt">$55k</span>
+        <span class="stat-value debt" id="stat-debt">$5.5k</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">Net Worth</span>
-        <span class="stat-value total" id="stat-total">-$35k</span>
+        <span class="stat-value total" id="stat-total">-$3.5k</span>
       </div>
       <div class="stat-item">
         <span class="stat-label">Health</span>
@@ -120,12 +118,5 @@
   <script src="js/config.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/ui.js"></script>
-
-  <!-- Service Worker registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-  </script>
 </body>
 </html>

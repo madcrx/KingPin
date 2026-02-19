@@ -78,11 +78,15 @@ class GameUI {
   showNewGame() {
     let html = `<div class="modal-header">New Game</div>
       <div class="modal-body">
-        <label class="modal-label">Choose your starting city:</label>
+        <label class="modal-label">Choose your starting district:</label>
         <div class="location-list">`;
 
     CONFIG.LOCATIONS.forEach((loc, i) => {
-      html += `<button class="location-btn" data-loc="${i}">${loc.name}</button>`;
+      let extra = '';
+      if (i === CONFIG.BANK_LOCATION) extra = ' (Bank)';
+      else if (i === CONFIG.GUN_SHOP_LOCATION) extra = ' (Guns)';
+      else if (i === CONFIG.HOSPITAL_LOCATION) extra = ' (Hospital)';
+      html += `<button class="location-btn" data-loc="${i}">${loc.name}${extra}</button>`;
     });
 
     html += `</div></div>`;
@@ -154,10 +158,10 @@ class GameUI {
     this.gunsEl.textContent = e.numGuns;
     this.coatEl.textContent = `${e.coatUsed}/${e.coatSize}`;
 
-    // All facilities available everywhere
-    this.btnFinance.disabled = false;
-    this.btnGuns.disabled = false;
-    this.btnHospital.disabled = false;
+    // Location-restricted facilities
+    this.btnFinance.disabled = !e.isAtBank();
+    this.btnGuns.disabled = !e.isAtGunShop();
+    this.btnHospital.disabled = !e.isAtHospital();
 
     // Update heat level indicator
     const heat = e.getHeatLevel();
@@ -249,7 +253,11 @@ class GameUI {
 
     CONFIG.LOCATIONS.forEach((loc, i) => {
       if (i !== e.location) {
-        html += `<button class="location-btn" data-loc="${i}">${loc.name}</button>`;
+        let extra = '';
+        if (i === CONFIG.BANK_LOCATION) extra = ' (Bank)';
+        else if (i === CONFIG.GUN_SHOP_LOCATION) extra = ' (Guns)';
+        else if (i === CONFIG.HOSPITAL_LOCATION) extra = ' (Hospital)';
+        html += `<button class="location-btn" data-loc="${i}">${loc.name}${extra}</button>`;
       }
     });
 
@@ -517,11 +525,19 @@ class GameUI {
         </div>
       </div>`;
 
-    this.showModal(html, 'fight-modal', false);
+    // Use closeable=true so Continue buttons work via closeModal()
+    this.showModal(html, 'fight-modal', true);
 
     document.getElementById('btn-fight-fight').addEventListener('click', () => this.doFight());
     document.getElementById('btn-fight-run').addEventListener('click', () => this.doRun());
     document.getElementById('btn-fight-stay').addEventListener('click', () => this.doSurrender());
+
+    // Prevent closing by clicking overlay during fight
+    this.modalOverlay.onclick = (e) => {
+      if (e.target === this.modalOverlay && this.currentModal !== 'fight-modal') {
+        this.closeModal();
+      }
+    };
   }
 
   updateFightScreen() {
@@ -575,6 +591,7 @@ class GameUI {
         `<button class="btn btn-close" id="btn-fight-done">Continue</button>`;
       document.getElementById('btn-fight-done').addEventListener('click', () => {
         this.closeModal();
+        this.restoreOverlayHandler();
         if (result.doctorOffer) {
           this.showConfirm(`Do you pay a doctor ${formatMoney(result.doctorOffer)} to sew you up?`, () => {
             this.engine.acceptDoctor(result.doctorOffer);
@@ -590,6 +607,7 @@ class GameUI {
         `<button class="btn btn-close" id="btn-fight-dead">Continue</button>`;
       document.getElementById('btn-fight-dead').addEventListener('click', () => {
         this.closeModal();
+        this.restoreOverlayHandler();
         this.playerDied();
       });
     }
@@ -604,6 +622,7 @@ class GameUI {
         `<button class="btn btn-close" id="btn-fight-escaped">Continue</button>`;
       document.getElementById('btn-fight-escaped').addEventListener('click', () => {
         this.closeModal();
+        this.restoreOverlayHandler();
       });
       return;
     }
@@ -621,6 +640,7 @@ class GameUI {
         `<button class="btn btn-close" id="btn-fight-dead">Continue</button>`;
       document.getElementById('btn-fight-dead').addEventListener('click', () => {
         this.closeModal();
+        this.restoreOverlayHandler();
         this.playerDied();
       });
     }
@@ -635,8 +655,15 @@ class GameUI {
       `<button class="btn btn-close" id="btn-fight-done">Continue</button>`;
     document.getElementById('btn-fight-done').addEventListener('click', () => {
       this.closeModal();
+      this.restoreOverlayHandler();
       this.checkDayEnd();
     });
+  }
+
+  restoreOverlayHandler() {
+    this.modalOverlay.onclick = (e) => {
+      if (e.target === this.modalOverlay) this.closeModal();
+    };
   }
 
   playerDied() {
@@ -673,7 +700,7 @@ class GameUI {
     });
   }
 
-  // ──── FINANCE ────
+  // ──── FINANCE (Bronx only) ────
   showFinance() {
     const e = this.engine;
     let tempCash = e.cash;
@@ -758,7 +785,7 @@ class GameUI {
     render();
   }
 
-  // ──── GUN SHOP ────
+  // ──── GUN SHOP (Ghetto only) ────
   showGunShop() {
     const e = this.engine;
 
@@ -884,7 +911,7 @@ class GameUI {
     render();
   }
 
-  // ──── HOSPITAL ────
+  // ──── HOSPITAL (Queens only) ────
   showHospital() {
     const e = this.engine;
 
@@ -960,11 +987,11 @@ class GameUI {
     const html = `<div class="modal-header">About KingPin</div>
       <div class="modal-body">
         <div class="about-text">
-          <p><strong>KingPin</strong> - Global Drug Wars</p>
-          <p>Trade across 15 world cities. Build your empire in 365 days.</p>
+          <p><strong>KingPin</strong> - Drug Wars</p>
+          <p>Deal drugs across 8 NYC districts. You have 30 days to pay off your debt and get rich.</p>
           <p>Original concept by John E. Dell (1984).<br>
           C++ WinCE version by AtomWare.<br>
-          Web port and global expansion by Claude Code.</p>
+          Web port by Claude Code.</p>
           <p>Buy low, sell high, avoid the cops, and try to pay off your debt!</p>
         </div>
         <div class="modal-actions">

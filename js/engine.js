@@ -1,5 +1,5 @@
 // KingPin - Core Game Engine
-// Global drug trade, 365-day gameplay, heat level system
+// Drug Wars - 30-day NYC gameplay
 
 class GameEngine {
   constructor() {
@@ -94,6 +94,11 @@ class GameEngine {
     return CONFIG.HEAT_THRESHOLDS[CONFIG.HEAT_THRESHOLDS.length - 1];
   }
 
+  // Check if player is at a special location
+  isAtBank() { return this.location === CONFIG.BANK_LOCATION; }
+  isAtGunShop() { return this.location === CONFIG.GUN_SHOP_LOCATION; }
+  isAtHospital() { return this.location === CONFIG.HOSPITAL_LOCATION; }
+
   events() {
     let eventRange = 100;
     for (const t of CONFIG.EVENT_THRESHOLDS) {
@@ -166,7 +171,7 @@ class GameEngine {
 
     if (r < 10) {
       text = "You were mugged in the subway!";
-      this.cash = Math.floor(this.cash * brandom(80, 95) / 1001);
+      this.cash = Math.floor(this.cash * brandom(80, 95) / 100);
     } else if (r < 30) {
       // Friend tries to give you drugs
       const amount = brandom(3, 7);
@@ -207,13 +212,12 @@ class GameEngine {
         }
       }
     } else if (r < 60) {
-      // Police Raid - replaces mama's brownies
+      // Police Raid
       let hasDrugs = false;
       for (let i = 0; i < CONFIG.NUM_DRUGS; i++) {
         if (this.drugs[i].number > 0) { hasDrugs = true; break; }
       }
       if (hasDrugs) {
-        // Find a random drug being carried
         let ind = -1;
         for (let attempt = 0; attempt < 10; attempt++) {
           const tryInd = brandom(0, CONFIG.NUM_DRUGS);
@@ -236,7 +240,7 @@ class GameEngine {
         text = "Police raid! Officers sweep through the area, but you're clean.";
       }
     } else if (r < 65) {
-      // Empty slot (paraquat - never implemented)
+      // Empty slot
     } else {
       const amount = brandom(10, 100);
       const activity = CONFIG.STOPPED_TO[brandom(0, CONFIG.NUM_STOPPED_TO)];
@@ -349,14 +353,14 @@ class GameEngine {
 
     if (damage >= 100) {
       if (cops === 1) {
-        const money = brandom(15000, 30000);
+        const money = brandom(1500, 3000);
         result.playerText = `You killed Officer HardAss!\n\nYou find ${formatMoney(money)} on his corpse!`;
         this.cash += money;
         result.killed = true;
         result.reward = money;
         result.copsRemaining = 0;
 
-        const docFee = brandom(10000, Math.max(10001, 20000 - (50 * this.health)));
+        const docFee = brandom(1000, Math.max(1001, 2000 - (5 * this.health)));
         if (brandom(0, 100) < 75 && this.cash >= docFee && this.health < 100) {
           result.doctorOffer = docFee;
         }
@@ -408,7 +412,7 @@ class GameEngine {
 
     const getAway = brandom(0, 100);
     let cost = brandom(Math.floor(this.total / 8), Math.floor(this.total / 4));
-    if (cost <= 0) cost = 50000;
+    if (cost <= 0) cost = 5000;
 
     let text;
     let jailDays = 0;
@@ -570,7 +574,7 @@ class GameEngine {
     }
   }
 
-  // Finance (available everywhere now)
+  // Finance (Bronx only)
   deposit(amount) {
     this.cash -= amount;
     this.bank += amount;
@@ -594,9 +598,9 @@ class GameEngine {
     this.total = this.cash + this.bank - this.debt;
   }
 
-  // Hospital (available everywhere now)
+  // Hospital (Queens only)
   getHospitalFee() {
-    return brandom(10000, Math.max(10001, 20000 - (50 * this.health)));
+    return brandom(1000, Math.max(1001, 2000 - (5 * this.health)));
   }
 
   heal(fee) {
@@ -607,7 +611,7 @@ class GameEngine {
 
   maxBorrow() {
     let max = this.cash * 30;
-    if (max < 55000) max = 55000;
+    if (max < 5500) max = 5500;
     return max;
   }
 
