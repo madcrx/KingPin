@@ -212,6 +212,7 @@ class GameUI {
     if (event.type === 'trenchcoat_offer') {
       this.showConfirm(event.message, () => {
         this.engine.acceptTrenchcoatOffer(event.price);
+        Anim.show('coat');
         this.addOutput(`You bought a bigger trenchcoat! (+20 space)`);
         this.updateScreen();
         this.processPendingEvent(index + 1);
@@ -221,6 +222,7 @@ class GameUI {
     } else if (event.type === 'gun_offer') {
       this.showConfirm(event.message, () => {
         this.engine.acceptGunOffer(event.gunIndex, event.price);
+        Anim.show('buy-gun');
         this.addOutput(`You bought a ${CONFIG.GUNS[event.gunIndex].name}!`);
         this.updateScreen();
         this.processPendingEvent(index + 1);
@@ -282,6 +284,7 @@ class GameUI {
 
   travel(newLocation) {
     this.clearOutput();
+    Anim.show('travel');
     this.engine.newDay(newLocation);
 
     if (this.engine.health <= 0) {
@@ -433,6 +436,7 @@ class GameUI {
       1, max, 1,
       (qty) => {
         e.buyDrug(drugIndex, qty);
+        Anim.show('buy-drug');
         this.updateScreen();
         this.renderDrugLists();
       }
@@ -457,6 +461,7 @@ class GameUI {
       curPrice, boughtPrice,
       (qty) => {
         e.sellDrug(drugIndex, qty);
+        Anim.show('sell-drug');
         this.updateScreen();
         this.renderDrugLists();
       }
@@ -474,6 +479,7 @@ class GameUI {
       1, carrying, 1,
       (qty) => {
         const result = e.dumpDrug(drugIndex, qty);
+        Anim.show('drop-drug');
         this.updateScreen();
         this.renderDrugLists();
 
@@ -582,11 +588,18 @@ class GameUI {
       this.addFightLog(result.policeText);
     }
 
+    if (!result.killed && result.playerText.includes("missed")) {
+      Anim.show('fight-miss');
+    } else if (!result.killed) {
+      Anim.show('fight-hit');
+    }
+
     this.updateFightScreen();
     this.updateScreen();
 
     if (result.killed && result.copsRemaining === 0) {
       // Won the fight
+      Anim.show('fight-win');
       document.getElementById('fight-actions').innerHTML =
         `<button class="btn btn-close" id="btn-fight-done">Continue</button>`;
       document.getElementById('btn-fight-done').addEventListener('click', () => {
@@ -595,6 +608,7 @@ class GameUI {
         if (result.doctorOffer) {
           this.showConfirm(`Do you pay a doctor ${formatMoney(result.doctorOffer)} to sew you up?`, () => {
             this.engine.acceptDoctor(result.doctorOffer);
+            Anim.show('heal');
             this.updateScreen();
           });
         }
@@ -618,6 +632,7 @@ class GameUI {
 
     if (result.escaped) {
       this.addFightLog(result.text);
+      Anim.show('escape');
       document.getElementById('fight-actions').innerHTML =
         `<button class="btn btn-close" id="btn-fight-escaped">Continue</button>`;
       document.getElementById('btn-fight-escaped').addEventListener('click', () => {
@@ -649,6 +664,7 @@ class GameUI {
   doSurrender() {
     const result = this.engine.surrenderToCops();
     this.addFightLog(result.text);
+    Anim.show(result.noDrugs ? 'escape' : 'arrest');
     this.updateScreen();
 
     document.getElementById('fight-actions').innerHTML =
@@ -734,6 +750,7 @@ class GameUI {
           1, tempCash, 1, (amt) => {
             tempCash -= amt; tempBank += amt;
             e.cash = tempCash; e.bank = tempBank;
+            Anim.show('deposit');
             e.total = e.cash + e.bank - e.debt;
             this.updateScreen();
             render();
@@ -745,6 +762,7 @@ class GameUI {
           1, tempBank, 1, (amt) => {
             tempCash += amt; tempBank -= amt;
             e.cash = tempCash; e.bank = tempBank;
+            Anim.show('withdraw');
             e.total = e.cash + e.bank - e.debt;
             this.updateScreen();
             render();
@@ -758,6 +776,7 @@ class GameUI {
             tempCash += amt; tempDebt += amt;
             e.cash = tempCash; e.debt = tempDebt;
             e.makeLoan = false;
+            Anim.show('borrow');
             e.total = e.cash + e.bank - e.debt;
             this.updateScreen();
             render();
@@ -770,6 +789,7 @@ class GameUI {
           "How much to pay back?", 1, maxPay, 1, (amt) => {
             tempCash -= amt; tempDebt -= amt;
             e.cash = tempCash; e.debt = tempDebt;
+            Anim.show('payback');
             e.total = e.cash + e.bank - e.debt;
             this.updateScreen();
             render();
@@ -876,6 +896,7 @@ class GameUI {
             return;
           }
           e.buyGun(gun);
+          Anim.show('buy-gun');
           this.updateScreen();
           render();
         });
@@ -888,6 +909,7 @@ class GameUI {
             `Carrying: ${e.guns[gun].number}`, "How many to sell?",
             1, e.guns[gun].number, 1, (qty) => {
               e.sellGunItem(gun, qty);
+              Anim.show('sell-gun');
               this.updateScreen();
               render();
             });
@@ -928,6 +950,7 @@ class GameUI {
 
     this.showConfirm(`Do you pay a doctor ${formatMoney(fee)} to sew you up?`, () => {
       e.heal(fee);
+      Anim.show('heal');
       this.updateScreen();
       this.addOutput("The doctor patched you up. Health restored to 100.");
     });

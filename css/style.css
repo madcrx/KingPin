@@ -857,3 +857,435 @@ input[type=number]::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+/* ══════════════════════════════════════════
+   TRANSACTION ANIMATIONS
+   ══════════════════════════════════════════ */
+
+/* ── Overlay container ── */
+
+.anim-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.anim-overlay.anim-active {
+  opacity: 1;
+}
+
+.anim-overlay.anim-fade {
+  opacity: 0;
+}
+
+.anim-scene {
+  width: 80px;
+  height: 80px;
+  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
+}
+
+.anim-svg {
+  overflow: visible;
+}
+
+/* ── Buy Drug: pill drops in, coins fall away ── */
+
+.anim-drop-bounce {
+  animation: dropBounce 0.8s ease-out forwards;
+}
+
+.anim-coins-fall {
+  animation: coinsFall 1s ease-in forwards;
+}
+
+@keyframes dropBounce {
+  0%   { transform: translateY(-40px); opacity: 0; }
+  50%  { transform: translateY(4px); opacity: 1; }
+  70%  { transform: translateY(-6px); }
+  85%  { transform: translateY(2px); }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes coinsFall {
+  0%   { transform: translateY(0); opacity: 0.8; }
+  30%  { opacity: 0.8; }
+  100% { transform: translateY(50px); opacity: 0; }
+}
+
+/* ── Sell Drug: cash rising ── */
+
+.anim-cash-rise {
+  animation: cashRise 1s ease-out forwards;
+}
+
+.anim-cash-rise-delay1 {
+  animation: cashRise 1s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.anim-cash-rise-delay2 {
+  animation: cashRise 1s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.anim-glow-pulse {
+  animation: glowPulse 0.8s ease-out forwards;
+}
+
+@keyframes cashRise {
+  0%   { transform: translateY(10px); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+
+@keyframes glowPulse {
+  0%   { r: 10; opacity: 0.5; }
+  100% { r: 35; opacity: 0; }
+}
+
+/* ── Drop Drug: tumble fall ── */
+
+.anim-tumble-fall {
+  animation: tumbleFall 0.9s ease-in forwards;
+}
+
+.anim-puff {
+  animation: puffAppear 0.4s ease-out 0.7s forwards;
+}
+
+@keyframes tumbleFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+  100% { transform: translateY(40px) rotate(180deg); opacity: 0.2; }
+}
+
+@keyframes puffAppear {
+  0%   { opacity: 0; transform: scale(0.5); }
+  50%  { opacity: 0.5; }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+/* ── Buy Gun: recoil + muzzle flash ── */
+
+.anim-gun-recoil {
+  animation: gunRecoil 0.6s ease-out forwards;
+}
+
+.anim-muzzle-flash {
+  animation: muzzleFlash 0.3s ease-out forwards;
+}
+
+.anim-shell-eject {
+  animation: shellEject 0.8s ease-out forwards;
+}
+
+@keyframes gunRecoil {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(8px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes muzzleFlash {
+  0%   { opacity: 1; transform: scale(1); }
+  50%  { opacity: 0.8; transform: scale(1.4); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+
+@keyframes shellEject {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+  100% { transform: translate(16px, -24px) rotate(90deg); opacity: 0; }
+}
+
+/* ── Sell Gun: fade out + cash ── */
+
+.anim-fade-out-left {
+  animation: fadeOutLeft 0.8s ease-in forwards;
+}
+
+@keyframes fadeOutLeft {
+  0%   { transform: translateX(0); opacity: 0.7; }
+  100% { transform: translateX(-20px); opacity: 0; }
+}
+
+/* ── Travel: jet whoosh ── */
+
+.anim-jet-whoosh {
+  animation: jetWhoosh 0.9s ease-in-out forwards;
+}
+
+.anim-trail-1 { animation: trailDash 0.6s ease-out 0.1s forwards; }
+.anim-trail-2 { animation: trailDash 0.6s ease-out 0.2s forwards; }
+.anim-trail-3 { animation: trailDash 0.6s ease-out 0.15s forwards; }
+
+@keyframes jetWhoosh {
+  0%   { transform: translateX(-40px); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateX(50px); opacity: 0; }
+}
+
+@keyframes trailDash {
+  0%   { opacity: 0; transform: scaleX(0.3); }
+  40%  { opacity: 0.6; }
+  100% { opacity: 0; transform: scaleX(1.2); }
+}
+
+/* ── Deposit: coin drops into vault ── */
+
+.anim-coin-drop {
+  animation: coinDrop 0.8s ease-in forwards;
+}
+
+@keyframes coinDrop {
+  0%   { transform: translateY(0); opacity: 1; }
+  70%  { opacity: 1; }
+  90%  { transform: translateY(34px); opacity: 0.6; }
+  100% { transform: translateY(34px); opacity: 0; }
+}
+
+/* ── Withdraw: coin rises from vault ── */
+
+.anim-coin-rise {
+  animation: coinRise 0.8s ease-out forwards;
+}
+
+@keyframes coinRise {
+  0%   { transform: translateY(0); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateY(-44px); opacity: 0.8; }
+}
+
+/* ── Borrow: bills fan out ── */
+
+.anim-fan-out-1 { animation: fanOut 0.8s ease-out forwards; }
+.anim-fan-out-2 { animation: fanOutLeft 0.8s ease-out 0.1s forwards; }
+.anim-fan-out-3 { animation: fanOutRight 0.8s ease-out 0.15s forwards; }
+
+@keyframes fanOut {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  30%  { opacity: 0.8; }
+  100% { transform: translate(0, -16px) rotate(-2deg); opacity: 0.7; }
+}
+
+@keyframes fanOutLeft {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  30%  { opacity: 0.7; }
+  100% { transform: translate(-10px, -6px) rotate(-8deg); opacity: 0.6; }
+}
+
+@keyframes fanOutRight {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  30%  { opacity: 0.6; }
+  100% { transform: translate(10px, 2px) rotate(6deg); opacity: 0.5; }
+}
+
+/* ── Payback: collapse + checkmark ── */
+
+.anim-collapse-in-1 { animation: collapseRight 0.6s ease-in forwards; }
+.anim-collapse-in-2 { animation: collapseLeft 0.6s ease-in forwards; }
+.anim-check-appear  { animation: checkAppear 0.4s ease-out 0.5s forwards; opacity: 0; }
+
+@keyframes collapseRight {
+  0%   { transform: translateX(0); opacity: 0.8; }
+  100% { transform: translateX(14px); opacity: 0; }
+}
+
+@keyframes collapseLeft {
+  0%   { transform: translateX(0); opacity: 0.8; }
+  100% { transform: translateX(-14px); opacity: 0; }
+}
+
+@keyframes checkAppear {
+  0%   { transform: scale(0.3); opacity: 0; }
+  60%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Heal: cross pulse + heartbeat ── */
+
+.anim-heal-pulse {
+  animation: healPulse 1s ease-in-out forwards;
+  transform-origin: 40px 38px;
+}
+
+.anim-heartbeat {
+  animation: heartbeatTrace 0.8s ease-out 0.3s forwards;
+}
+
+.anim-heal-glow {
+  animation: healGlow 0.8s ease-out 0.2s forwards;
+}
+
+@keyframes healPulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  30%  { transform: scale(1.1); opacity: 1; }
+  50%  { transform: scale(0.95); }
+  70%  { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+
+@keyframes heartbeatTrace {
+  0%   { stroke-dasharray: 0 200; opacity: 0; }
+  30%  { opacity: 1; }
+  100% { stroke-dasharray: 200 0; opacity: 0.6; }
+}
+
+@keyframes healGlow {
+  0%   { r: 10; opacity: 0.4; }
+  100% { r: 32; opacity: 0; }
+}
+
+/* ── Fight Hit: impact burst ── */
+
+.anim-impact-burst {
+  animation: impactBurst 0.6s ease-out forwards;
+  transform-origin: 40px 40px;
+}
+
+@keyframes impactBurst {
+  0%   { transform: scale(0); opacity: 0; }
+  30%  { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+/* ── Fight Win: victory star ── */
+
+.anim-victory-spin {
+  animation: victorySpin 1s ease-out forwards;
+  transform-origin: 40px 36px;
+}
+
+.anim-sparkle-1 { animation: sparkle 0.5s ease-out 0.2s forwards; }
+.anim-sparkle-2 { animation: sparkle 0.5s ease-out 0.4s forwards; }
+.anim-sparkle-3 { animation: sparkle 0.5s ease-out 0.3s forwards; }
+.anim-sparkle-4 { animation: sparkle 0.5s ease-out 0.5s forwards; }
+
+@keyframes victorySpin {
+  0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+  40%  { transform: scale(1.2) rotate(10deg); opacity: 1; }
+  70%  { transform: scale(0.95) rotate(-5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+}
+
+@keyframes sparkle {
+  0%   { opacity: 0; r: 0; }
+  50%  { opacity: 1; }
+  100% { opacity: 0; r: 4; }
+}
+
+/* ── Fight Miss: whoosh lines ── */
+
+.anim-whoosh-1 { animation: whooshLine 0.5s ease-out 0.05s forwards; }
+.anim-whoosh-2 { animation: whooshLine 0.5s ease-out 0.15s forwards; }
+.anim-whoosh-3 { animation: whooshLine 0.5s ease-out 0.25s forwards; }
+.anim-miss-text { animation: textFadeUp 0.6s ease-out 0.3s forwards; }
+
+@keyframes whooshLine {
+  0%   { opacity: 0; transform: translateX(-20px); }
+  30%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateX(30px); }
+}
+
+@keyframes textFadeUp {
+  0%   { opacity: 0; transform: translateY(8px); }
+  40%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ── Escape: runner + speed lines ── */
+
+.anim-runner {
+  animation: runnerDash 0.9s ease-in-out forwards;
+}
+
+.anim-speed-1 { animation: speedLine 0.5s ease-out 0.1s forwards; }
+.anim-speed-2 { animation: speedLine 0.5s ease-out 0.2s forwards; }
+.anim-speed-3 { animation: speedLine 0.5s ease-out 0.3s forwards; }
+
+@keyframes runnerDash {
+  0%   { transform: translateX(-10px); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateX(40px); opacity: 0; }
+}
+
+@keyframes speedLine {
+  0%   { opacity: 0; transform: translateX(0) scaleX(0.3); }
+  40%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateX(-10px) scaleX(1); }
+}
+
+/* ── Arrest: bars drop ── */
+
+.anim-bars-drop {
+  animation: barsDrop 0.7s ease-out forwards;
+}
+
+@keyframes barsDrop {
+  0%   { transform: translateY(-70px); opacity: 0; }
+  60%  { transform: translateY(4px); opacity: 1; }
+  80%  { transform: translateY(-2px); }
+  100% { transform: translateY(0); opacity: 0.9; }
+}
+
+/* ── Trenchcoat: expand ── */
+
+.anim-coat-expand {
+  animation: coatExpand 0.9s ease-out forwards;
+  transform-origin: 40px 40px;
+}
+
+@keyframes coatExpand {
+  0%   { transform: scale(0.6); opacity: 0; }
+  40%  { transform: scale(1.1); opacity: 1; }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+/* ── Mugged: shake + danger rings ── */
+
+.anim-shake {
+  animation: shakeHard 0.6s ease-out forwards;
+}
+
+.anim-danger-ring {
+  animation: dangerRing 0.8s ease-out forwards;
+}
+
+.anim-danger-ring-2 {
+  animation: dangerRing 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes shakeHard {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+
+@keyframes dangerRing {
+  0%   { r: 10; opacity: 0.6; stroke-width: 3; }
+  100% { r: 36; opacity: 0; stroke-width: 1; }
+}
+
+/* ── Shared: text fade in ── */
+
+.anim-text-fade {
+  animation: textFadeIn 0.6s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+@keyframes textFadeIn {
+  0%   { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 0.8; transform: translateY(0); }
+}
